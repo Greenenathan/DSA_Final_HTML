@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins"
+      rel="stylesheet"
+    />
+    <title>Add Numbers</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins";
+      }
+    </style>
+  </head>
+  <body class="bg-red-700">
+    <header class="p-5">
+      <a class="text-red-300 text-3xl hover:underline" href="./index.html"
+        >Home</a
+      >
+    </header>
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <div class="form flex flex-col">
+      <input
+        class="bg-grey-50 border border-white-400 text-red-900 text-sm rounded-lg focus:ring-grey-500 focus:border-grey-500 block p-2.5 dark:bg-grey-700 dark:border-red-600 dark:placeholder-red-400 dark:text-red dark:focus:ring-red-500 dark:focus:border-red-500"
+        type="text"
+        id="input"
+      />
+      <button
+        class="text-red-300 text-5xl pt-3"
+        onclick="postNumbers()"
+        id="submitButton"
+      >
+        Submit
+      </button>
+      <button class="text-red-300 text-5xl p-4" id="getPrevTrees">
+        Previous
+      </button>
+    </div>
+
+    <div class="response text-red-300"></div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"
+      integrity="sha512-uMtXmF28A2Ab/JJO2t/vYhlaa/3ahUOgj1Zf27M5rOo8/+fcTUVH0/E0ll68njmjrLqOBjXM3V9NiPFL5ywWPQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      document
+        .getElementById("submitButton")
+        .addEventListener("click", function () {
+          const inputValue = document.getElementById("input").value;
+          const numbers = inputValue
+            .split(",")
+            .map((num) => Number(num.trim()));
+          postNumbers(numbers);
+        });
+
+      document
+        .getElementById("getPrevTrees")
+        .addEventListener("click", function () {
+          getPrevious();
+        });
+
+      async function postNumbers(numbers) {
+        try {
+          const response = await axios.post(
+            "http://localhost:8080/process-numbers",
+            numbers
+          );
+          const responseDiv = document.querySelector(".response");
+
+          const formattedJson = JSON.stringify(response.data, null, 2);
+
+          responseDiv.innerHTML = `<pre>${formattedJson}</pre>`;
+        } catch (error) {
+          console.log(error);
+          const responseDiv = document.querySelector(".response");
+          responseDiv.innerText = "Error processing numbers.";
+        }
+      }
+
+      async function getPrevious() {
+        try {
+          const response = await axios.get("http://localhost:8080/previous");
+          const responseDiv = document.querySelector(".response");
+
+          const allPrev = response.data
+            .map((tree) => JSON.stringify(tree, null, 2))
+            .join("\n");
+
+          console.log(allPrev);
+
+          responseDiv.innerHTML = `<pre>${allPrev}</pre>`;
+
+          return response.data;
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    </script>
+  </body>
+</html>
